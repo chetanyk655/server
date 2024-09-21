@@ -8,7 +8,8 @@ app.use(express.urlencoded({
 }));
 
 let details = {};
-app.listen(2000,()=>{
+const PORT = process.env.PORT || 2000;
+app.listen(PORT,()=>{
     console.log("hello buddies");
 })
 
