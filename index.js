@@ -29,4 +29,11 @@ app.post("/api/send",(req,res)=>{
     })
 })
 
+app.get("/api/getdetails",(req,res)=>{
+    res.status(200).send({
+        "status_code" : 200,
+        "details" : details
+    })
+})
+
 
