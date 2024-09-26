@@ -1,25 +1,21 @@
 
 const express = require("express")
-const mysql = require('mysql2')
+
 const bcrypt = require('bcryptjs');
-
-const pool = mysql.createPool({
-  host: 'localhost',     // Your MySQL host
-  user: 'root',          // Your MySQL username
-  password: 'SocietyMAACDK@24',  // Your MySQL password
-  database: 'accounts' // Your MySQL database
-})
-module.exports = pool.promisePool;
-
+const complaintRoute = require("./routes/complaint.js")
+const feedbackRoute = require("./routes/feedback.js")
+const pool = require('./db')
  const app = express();
 app.use(express.json());
 app.use(express.urlencoded({
     extended : true
 }));
 
+app.use('/api/complaints',complaintRoute)
+app.use('/api/feedbacks',feedbackRoute)
 
 let details = {};
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 2000;
 
 app.listen(PORT,()=>{
     console.log(`Listening on ${PORT}`);

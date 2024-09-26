@@ -25,6 +25,22 @@ CREATE TABLE admin_accounts(
     password VARCHAR(255)
 );
 
+CREATE TABLE feedbacks(
+	f_id INT PRIMARY KEY AUTO_INCREMENT,
+	feedback LONGTEXT,
+    date VARCHAR(10),
+    time VARCHAR(25)
+);
+
+CREATE TABLE complaints(
+	c_id INT PRIMARY KEY AUTO_INCREMENT,
+	complaint LONGTEXT,
+    date VARCHAR(10),
+    time VARCHAR(25)
+);
+
+
+
 DROP TABLE admin_accounts;
 DROP TABLE member_accounts;
 SELECT * FROM registration;
