@@ -2,12 +2,30 @@ CREATE DATABASE accounts;
 
 USE accounts;
 
-CREATE TABLE registration(
-	user_id INT PRIMARY KEY,
-	username VARCHAR(20),
-    password VARCHAR(30) NOT NULL
+CREATE TABLE member_accounts(
+	member_id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(30),
+    password VARCHAR(255)
+);
+ALTER TABLE member_accounts
+ADD COLUMN name VARCHAR(20);
+ALTER TABLE member_accounts
+ADD COLUMN  house_no INT;
+CREATE TABLE notice(
+	date VARCHAR(10),
+    time VARCHAR(25),
+	contents LONGTEXT,
+    PRIMARY KEY (date,time)
 );
 
-INSERT INTO  registration (user_id,username,password) VALUES (100,"chetanyk655","123456yk655");
+CREATE TABLE admin_accounts(
+	admin_id INT PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(20) ,
+    email VARCHAR(30),
+    password VARCHAR(255)
+);
 
+DROP TABLE admin_accounts;
+DROP TABLE member_accounts;
 SELECT * FROM registration;
+SELECT * FROM notice;
