@@ -4,12 +4,12 @@ const express = require("express")
 const bcrypt = require('bcryptjs');
 const complaintRoute = require("./routes/complaint.js")
 const feedbackRoute = require("./routes/feedback.js")
-const feedbackRoute = require("./routes/bill.js")
+const billRoute = require("./routes/bill.js")
 
-let db1 = require('./db')
-const accountsDb = db1.accountsDb;
+const  {accountsDb,adminsDb, membersDb} = require('./config/db.js')
 
- const app = express();
+
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({
     extended : true
@@ -17,7 +17,7 @@ app.use(express.urlencoded({
 
 app.use('/api/complaints',complaintRoute)
 app.use('/api/feedbacks',feedbackRoute)
-app.use('/api/bills',feedbackRoute)
+app.use('/api/bills',billRoute)
 
 let details = {};
 const PORT = process.env.PORT || 2000;
@@ -25,34 +25,6 @@ const PORT = process.env.PORT || 2000;
 app.listen(PORT,()=>{
     console.log(`Listening on ${PORT}`);
 })
-
-app.post("/api/send",(req,res)=>{
-    console.log("Results",req.body);
-    details = {
-        "name" : req.body.name,
-        "city" : req.body.city,
-        "state" : req.body.state
-    }
-
-    console.log("final result",details);
-    res.status(200).send({
-        "status_code" : 200,
-        "message" : "Details are added",
-        "details" : details
-    })
-})
-
-app.get("/api/getdetails",(req,res)=>{
-    try{
-    res.status(200).send({
-        "status_code" : 200,
-        "details" : details
-    })
-    }catch(e){
-        console.err(e);
-    }
-})
-
 
 app.post("/api/checklogin",(req,res) =>{
     const {email,password,isAdmin} = req.body;
@@ -139,6 +111,7 @@ app.post('/api/registration',  (req, res) => {
     table = "member_accounts"
   }
   const checkUserQuery = `SELECT * FROM ${table} WHERE  email = "${email}"`;
+  
   accountsDb.query(checkUserQuery, async (err, results) => {
     if (results.length > 0) {
       return res.status(400).send({
@@ -184,7 +157,7 @@ app.post("/api/store-notice",(req,res)=>{
     const date = new Date();
     const sql = `INSERT INTO notice (contents,date,time) VALUES(?,?,?)`;
     try{
-        accountsDb.membersDb.query(sql,[content,`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`],(err,result)=>{
+        adminsDb.query(sql,[content,`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`],(err,result)=>{
             if(err){
                 return res.status(500).send({
                     "status_code" : 500,
@@ -254,7 +227,7 @@ const getDates = ()=>{
 app.get("/api/get-notice",(req,res)=>{
     const datesList = getDates();
     const sql = `SELECT * FROM notice WHERE date IN ("${datesList[0]}","${datesList[1]}","${datesList[2]}","${datesList[3]}","${datesList[4]}","${datesList[5]}","${datesList[6]}","${datesList[7]}","${datesList[8]}","${datesList[9]}","${datesList[10]}")`
-    accountsDb.membersDb.query(sql,(err,result)=>{
+    membersDb.query(sql,(err,result)=>{
         if(err){
             console.log(err);
             res.status(500).send({
@@ -277,3 +250,12 @@ app.get("/api/get-notice",(req,res)=>{
 
     })
 })
+
+
+/*
+    member and admin reg and login - accounts db (member_accounts,admin_accounts)
+    store-notice - admins db (notice)
+    get-notice - members db (notice)
+    bill-post - admins db(payments)
+    for complaint and feedback - user can post both in members database and admins database , user and admin can get from members database and admins db resp.
+*/

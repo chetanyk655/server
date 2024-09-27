@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {membersDb} = require('../db')
+const {membersDb} = require('../config/db')
 
 router.post("/",(req,res)=>{
     const contents = req.body.message;
