@@ -11,6 +11,7 @@ ALTER TABLE member_accounts
 ADD COLUMN name VARCHAR(20);
 ALTER TABLE member_accounts
 ADD COLUMN  house_no INT;
+
 CREATE TABLE notice(
 	date VARCHAR(10),
     time VARCHAR(25),
@@ -40,6 +41,16 @@ CREATE TABLE complaints(
 );
 
 
+CREATE DATABASE admin_features;
+use admin_features;
+
+CREATE TABLE payments (
+	p_id INT PRIMARY KEY AUTO_INCREMENT,
+    bill_amount double,
+    email VARCHAR(25)
+);
+CREATE DATABASE member_features;
+use member_features;
 
 DROP TABLE admin_accounts;
 DROP TABLE member_accounts;

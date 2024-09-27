@@ -4,7 +4,11 @@ const express = require("express")
 const bcrypt = require('bcryptjs');
 const complaintRoute = require("./routes/complaint.js")
 const feedbackRoute = require("./routes/feedback.js")
-const pool = require('./db')
+const feedbackRoute = require("./routes/bill.js")
+
+let db1 = require('./db')
+const accountsDb = db1.accountsDb;
+
  const app = express();
 app.use(express.json());
 app.use(express.urlencoded({
@@ -13,6 +17,7 @@ app.use(express.urlencoded({
 
 app.use('/api/complaints',complaintRoute)
 app.use('/api/feedbacks',feedbackRoute)
+app.use('/api/bills',feedbackRoute)
 
 let details = {};
 const PORT = process.env.PORT || 2000;
@@ -54,7 +59,7 @@ app.post("/api/checklogin",(req,res) =>{
 
     if(!isAdmin){
     const sql = `SELECT * FROM member_accounts WHERE email = "${email}"`
-    pool.query(sql,(err,result)=>{
+    accountsDb.query(sql,(err,result)=>{
         if(result.length == 0){
             res.status(404).send({
                 "status_code" : 404,
@@ -86,7 +91,7 @@ app.post("/api/checklogin",(req,res) =>{
     })
     }else{
         const sql = `SELECT * FROM admin_accounts WHERE email = "${email}"`
-        pool.query(sql,(err,result)=>{
+        accountsDb.query(sql,(err,result)=>{
             if(result.length == 0){
                 res.status(404).send({
                 "status_code" : 404,
@@ -134,7 +139,7 @@ app.post('/api/registration',  (req, res) => {
     table = "member_accounts"
   }
   const checkUserQuery = `SELECT * FROM ${table} WHERE  email = "${email}"`;
-  pool.query(checkUserQuery, async (err, results) => {
+  accountsDb.query(checkUserQuery, async (err, results) => {
     if (results.length > 0) {
       return res.status(400).send({
         "status_code" : 400,
@@ -150,7 +155,7 @@ app.post('/api/registration',  (req, res) => {
     // Store user in the database
     if(isAdmin){
         const query = `INSERT INTO ${table} (name, password,email) VALUES (?,?,?)`;
-        pool.query(query, [ name,hashedPassword,email], (err, result) => {
+        accountsDb.query(query, [ name,hashedPassword,email], (err, result) => {
         if (err) {
             console.log(err);
             return res.status(500).send('Error saving admin');
@@ -160,7 +165,7 @@ app.post('/api/registration',  (req, res) => {
         });
     }else{
         const query = `INSERT INTO ${table} (name,house_no, password,email) VALUES (?,?,?,?)`;
-        pool.query(query, [ name,house_no,hashedPassword,email], (err, result) => {
+        accountsDb.query(query, [ name,house_no,hashedPassword,email], (err, result) => {
         if (err) {
             console.log(err);
             return res.status(500).send('Error saving user');
@@ -179,7 +184,7 @@ app.post("/api/store-notice",(req,res)=>{
     const date = new Date();
     const sql = `INSERT INTO notice (contents,date,time) VALUES(?,?,?)`;
     try{
-        pool.query(sql,[content,`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`],(err,result)=>{
+        accountsDb.membersDb.query(sql,[content,`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`],(err,result)=>{
             if(err){
                 return res.status(500).send({
                     "status_code" : 500,
@@ -249,7 +254,7 @@ const getDates = ()=>{
 app.get("/api/get-notice",(req,res)=>{
     const datesList = getDates();
     const sql = `SELECT * FROM notice WHERE date IN ("${datesList[0]}","${datesList[1]}","${datesList[2]}","${datesList[3]}","${datesList[4]}","${datesList[5]}","${datesList[6]}","${datesList[7]}","${datesList[8]}","${datesList[9]}","${datesList[10]}")`
-    pool.query(sql,(err,result)=>{
+    accountsDb.membersDb.query(sql,(err,result)=>{
         if(err){
             console.log(err);
             res.status(500).send({

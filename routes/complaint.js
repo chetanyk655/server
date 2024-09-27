@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db')
+const {membersDb} = require('../db')
 
 
 router.post("/",(req,res)=>{
@@ -8,7 +8,7 @@ router.post("/",(req,res)=>{
     console.log(contents)
     const sql = `INSERT INTO complaints (complaint,date,time) VALUES (?,?,?) `;
 
-    pool.query(sql,[contents,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`],(err,result)=>{
+    membersDb.query(sql,[contents,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`],(err,result)=>{
         if(err){
             console.log(err);
             return;
@@ -68,7 +68,7 @@ const getDates = ()=>{
 router.get("/",(req,res)=>{
     const dates = getDates();
     const sql = `SELECT * FROM complaints WHERE date IN ("${dates[0]}","${dates[1]}","${dates[2]}","${dates[3]}","${dates[4]}","${dates[5]}","${dates[6]}","${dates[7]}","${dates[8]}","${dates[9]}","${dates[10]}")`;
-    pool.query(sql,(err,result)=>{
+    membersDb.query(sql,(err,result)=>{
         if(err){
             console.log(err);
             return;
