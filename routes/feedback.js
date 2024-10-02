@@ -1,22 +1,37 @@
 const express = require('express');
 const router = express.Router();
 const {membersDb} = require('../config/db')
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const cors = require('cors')
+const path = require('path');
+const multer = require('multer');
 
-router.post("/",(req,res)=>{
-    const contents = req.body.message;
-    const sql = `INSERT INTO feedbacks (feedback,date,time) VALUES (?,?,?) `;
+const storage = multer.memoryStorage(); // Store in memory for database insertion
+const upload = multer({ storage });
 
-    membersDb.query(sql,[contents,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`],(err,result)=>{
-        if(err){
-            console.log(err);
-            return;
+router.post("/",upload.single('image'),(req,res)=>{
+
+    try {
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.');
         }
-        res.status(200).send({
-            "status_code" : 200,
-            "response" : "success"
-        })
-    })
+    
+        const { originalname, buffer } = req.file;
+        const { message,filename } = req.body;
 
+        // Insert image data into the database
+        const query = 'INSERT INTO feedbacks (feedback,date,time,filename, image) VALUES (?,?,?,?,?)';
+        membersDb.query(query, [message,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`,filename,buffer], (err, results) => {
+            if (err) {
+                console.error('Error inserting image into database:', err);
+                return res.status(500).send('Error saving the file to database.');
+            }
+            res.send(`File uploaded and saved to database successfully with ID: ${results.insertId}`);
+        });
+    } catch (e) {
+        console.log(e);
+    }
 })
 
 function getDaysInMonth(year, month) {

@@ -2,29 +2,42 @@
 const express = require("express")
 
 const bcrypt = require('bcryptjs');
+const bodyParser = require('body-parser');
 const complaintRoute = require("./routes/complaint.js")
 const feedbackRoute = require("./routes/feedback.js")
 const billRoute = require("./routes/bill.js")
+const facilityRoute = require("./routes/facility.js")
+const marketPlaceRoute = require("./routes/marketplace.js")
+const contactRoute = require("./routes/contact.js")
+const membersRoute = require("./routes/members.js")
+const cors =require('cors')
 
 const  {accountsDb,adminsDb, membersDb} = require('./config/db.js')
 
 
-const app = express();
+ const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({
     extended : true
 }));
 
+
 app.use('/api/complaints',complaintRoute)
 app.use('/api/feedbacks',feedbackRoute)
 app.use('/api/bills',billRoute)
-
+app.use('/api/marketplace',marketPlaceRoute)
+app.use('/api/facility',facilityRoute)
+app.use('/api/contact',contactRoute)
+app.use('/api/members',membersRoute)
+app.use(cors())
 let details = {};
 const PORT = process.env.PORT || 2000;
 
 app.listen(PORT,()=>{
     console.log(`Listening on ${PORT}`);
 })
+module.exports = app;
 
 app.post("/api/checklogin",(req,res) =>{
     const {email,password,isAdmin} = req.body;
@@ -111,7 +124,7 @@ app.post('/api/registration',  (req, res) => {
     table = "member_accounts"
   }
   const checkUserQuery = `SELECT * FROM ${table} WHERE  email = "${email}"`;
-  
+
   accountsDb.query(checkUserQuery, async (err, results) => {
     if (results.length > 0) {
       return res.status(400).send({
@@ -227,7 +240,7 @@ const getDates = ()=>{
 app.get("/api/get-notice",(req,res)=>{
     const datesList = getDates();
     const sql = `SELECT * FROM notice WHERE date IN ("${datesList[0]}","${datesList[1]}","${datesList[2]}","${datesList[3]}","${datesList[4]}","${datesList[5]}","${datesList[6]}","${datesList[7]}","${datesList[8]}","${datesList[9]}","${datesList[10]}")`
-    membersDb.query(sql,(err,result)=>{
+    adminsDb.query(sql,(err,result)=>{
         if(err){
             console.log(err);
             res.status(500).send({

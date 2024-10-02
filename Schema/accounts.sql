@@ -16,3 +16,9 @@ CREATE TABLE member_accounts(
     password VARCHAR(255)
 );
 
+CREATE TABLE contacts(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    con_name VARCHAR(25),
+    con_no LONG,
+    uploader_mail VARCHAR(30)
+);
