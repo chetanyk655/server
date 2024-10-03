@@ -13,6 +13,7 @@ CREATE TABLE member_accounts(
     name VARCHAR(20),
     house_no INT UNIQUE,
     email VARCHAR(30),
+    ph_no LONG,
     password VARCHAR(255)
 );
 
@@ -21,4 +22,13 @@ CREATE TABLE contacts(
     con_name VARCHAR(25),
     con_no LONG,
     uploader_mail VARCHAR(30)
+);
+
+CREATE TABLE security(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    flat_no INT,
+    ph_no LONG,
+    reason LONGTEXT,
+    filename LONGTEXT,
+    image LONGBLOB
 );

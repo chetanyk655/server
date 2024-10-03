@@ -10,6 +10,8 @@ const facilityRoute = require("./routes/facility.js")
 const marketPlaceRoute = require("./routes/marketplace.js")
 const contactRoute = require("./routes/contact.js")
 const membersRoute = require("./routes/members.js")
+const securityRoute = require("./routes/security.js")
+
 const cors =require('cors')
 
 const  {accountsDb,adminsDb, membersDb} = require('./config/db.js')
@@ -30,6 +32,7 @@ app.use('/api/marketplace',marketPlaceRoute)
 app.use('/api/facility',facilityRoute)
 app.use('/api/contact',contactRoute)
 app.use('/api/members',membersRoute)
+app.use('/api/security',securityRoute)
 app.use(cors())
 let details = {};
 const PORT = process.env.PORT || 2000;
@@ -114,7 +117,7 @@ app.post("/api/checklogin",(req,res) =>{
 // Register route
 app.post('/api/registration',  (req, res) => {
     console.log(req.body)
-  const { name, password,email ,isAdmin,house_no} = req.body;
+  const { name, password,email ,isAdmin,house_no,ph_no} = req.body;
     let tableSelected;
   // Check if user already exists
 
@@ -150,8 +153,8 @@ app.post('/api/registration',  (req, res) => {
         console.log("Done",result);
         });
     }else{
-        const query = `INSERT INTO ${table} (name,house_no, password,email) VALUES (?,?,?,?)`;
-        accountsDb.query(query, [ name,house_no,hashedPassword,email], (err, result) => {
+        const query = `INSERT INTO ${table} (name,house_no, password,email,ph_no) VALUES (?,?,?,?,?)`;
+        accountsDb.query(query, [ name,house_no,hashedPassword,email,ph_no], (err, result) => {
         if (err) {
             console.log(err);
             return res.status(500).send('Error saving user');
