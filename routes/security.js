@@ -6,13 +6,14 @@ const path = require('path');
 const multer = require('multer');
 const router = express.Router();
 const { membersDb, accountsDb, adminsDb } = require('../config/db')
-
+router.use(cors());
 const storage = multer.memoryStorage(); // Store in memory for database insertion
 const upload = multer({ storage });
 
 router.post("/",upload.single('image'),(req,res)=>{
 
     try {
+        console.log("Hello i m called")
         if (!req.file) {
             return res.status(400).send('No file uploaded.');
         }
@@ -22,11 +23,12 @@ router.post("/",upload.single('image'),(req,res)=>{
 
         // Insert image data into the database
         const sql = `INSERT INTO security (image,filename,reason,flat_no,ph_no) VALUES (?,?,?,?,?)`;
-        membersDb.query(sql, [buffer,filename,reason,flat_no,ph_no], (err, results) => {
+        accountsDb.query(sql, [buffer,filename,reason,flat_no,ph_no], (err, results) => {
             if (err) {
                 console.error('Error inserting image into database:', err);
                 return res.status(500).send('Error saving the file to database.');
             }
+            console.log(results)
             if(err){
                 console.log(err);
                 res.status(500).send({
@@ -46,32 +48,55 @@ router.post("/",upload.single('image'),(req,res)=>{
 })
 
 router.get("/",(req,res)=>{
-    const {email} = req.query.email;
-    const sql = `SELECT * FROM security WHERE email = "${email}"`;
-    adminsDb.query(sql, (err, results) => {
-        if (err) {
-            console.error('Error retrieving image from database:', err);
-            return res.status(500).send('Error retrieving image.');
+    const sql = `SELECT * FROM member_accounts WHERE email = "${req.query.email}"`
+    accountsDb.query(sql,(err,result)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send({
+                "status_code" : 500,
+                "response" : "Internal Server Error"
+            })
+            return;
         }
-        
-        if (results.length === 0) {
-            return res.status(404).send({
-                "status_code"  : 404,
-                "response" : "No Security Enquiries Available"
-            });
+        if(result.length == 0 ){
+            res.status(404).send({
+                "status_code" : 404,
+                "response" : "No such member Exist"
+            })
+            return;
         }
+        const sql = `SELECT * FROM security WHERE ph_no = "${result[0]['ph_no']}"`;
+        accountsDb.query(sql, (err, results) => {
+            if (err) {
+                console.error('Error retrieving image from database:', err);
+                 res.status(500).send('Error retrieving image.');
+                 return;
+            }
+            
+            if (results.length === 0) {
+                 res.status(404).send({
+                    "status_code"  : 404,
+                    "response" : "No Security Enquiries Available"
+                });
+                return;
+            }
+         let i = 0;
+            while(i < results.length){
+                results[i].image = `data:image/jpeg;base64,${results[i].image.toString('base64')}`;
+                i++;
+            }
     
-        results.image = `data:image/jpeg;base64,${results.image.toString('base64')}`;
-       
-
-        res.status(200).send({
-            "status_code": 200,
-            "response": {
-                "products": results,
-            },
+            res.status(200).send({
+                "status_code": 200,
+                "response": 
+                     results,
+                "total_queries"  : i,
+            });
+            
         });
-        
-    });
+    })
+    
+    
 
 })
 

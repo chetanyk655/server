@@ -11,7 +11,7 @@ const marketPlaceRoute = require("./routes/marketplace.js")
 const contactRoute = require("./routes/contact.js")
 const membersRoute = require("./routes/members.js")
 const securityRoute = require("./routes/security.js")
-
+const adminAuthRoute = require("./routes/admin_auth.js")
 const cors =require('cors')
 
 const  {accountsDb,adminsDb, membersDb} = require('./config/db.js')
@@ -33,6 +33,7 @@ app.use('/api/facility',facilityRoute)
 app.use('/api/contact',contactRoute)
 app.use('/api/members',membersRoute)
 app.use('/api/security',securityRoute)
+app.use('/api/admin_auth',adminAuthRoute)
 app.use(cors())
 let details = {};
 const PORT = process.env.PORT || 2000;
