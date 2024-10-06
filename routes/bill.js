@@ -13,16 +13,17 @@ router.post("/",(req,res)=>{
         }
         res.status(200).send({
             "status_code" : 200,
-            "response" : "Succcess"
+            "response" : "Succcess",
+            "bill_id" : result['b_id'],
         })
     })
 })
 
 router.post("/maintenance",(req,res)=>{
-    const {bid,amount,email} = req.body;
+    const {bid,amount,email,pay_status} = req.body;
 
-    const sql = `INSERT INTO maintenance (bill_id,amount,m_email) VALUES (?,?,?)`;
-    adminsDb.query(sql,[bid,amount,email],(err,result)=>{
+    const sql = `INSERT INTO maintenance (bill_id,amount,m_email,pay_status) VALUES (?,?,?,?)`;
+    adminsDb.query(sql,[bid,amount,email,pay_status],(err,result)=>{
         if(err){
             console.log(err);
             res.status(500).send({
@@ -88,6 +89,7 @@ router.delete("/",(req,res)=>{
     })
 })
 
+
 router.get("/",(req,res)=>{
     const email = req.query.email;
 
@@ -114,4 +116,29 @@ router.get("/",(req,res)=>{
     })
 })
 
+router.get("/allbills",(req,res)=>{
+
+
+    const sql = `SELECT * FROM maintenance `;
+    console.log("helklo")
+    adminsDb.query(sql,(err,result)=>{
+        console.log(result)
+        if(err){
+            console.log(err);
+            return;
+        }
+
+        if(result.length == 0){
+            res.status(404).send({
+                "status_code" : 404,
+                "response" : "No Bills on due."
+            })
+            return result;
+        }
+        res.status(200).send({
+            "status_code" : 200,
+            "response" : result
+        })
+    })
+})
 module.exports = router;

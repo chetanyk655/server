@@ -33,6 +33,13 @@ router.get("/",(req,res)=>{
             })
         }
 
+        if(result.lengthn == 0 ){
+            res.status(404).send({
+                "status_code" : 404,
+                "response" : "No contacts found"
+            })
+            return;
+        }
         res.status(200).send({
             "status_code"  :200,
             "response"  :result
