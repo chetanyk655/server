@@ -18,11 +18,11 @@ router.post("/",upload.single('image'),(req,res)=>{
         }
     
         const { originalname, buffer } = req.file;
-        const { message,filename } = req.body;
+        const { message,filename,email } = req.body;
 
         // Insert image data into the database
-        const query = 'INSERT INTO feedbacks (feedback,date,time,filename, image) VALUES (?,?,?,?,?)';
-        membersDb.query(query, [message,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`,filename,buffer], (err, results) => {
+        const query = 'INSERT INTO feedbacks (feedback,date,time,filename, image,usr_mail) VALUES (?,?,?,?,?,?)';
+        membersDb.query(query, [message,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`,filename,buffer,email], (err, results) => {
             if (err) {
                 console.error('Error inserting image into database:', err);
                 return res.status(500).send('Error saving the file to database.');
@@ -85,6 +85,48 @@ router.get("/",(req,res)=>{
     membersDb.query(sql,(err,result)=>{
         if(err){
             console.log(err);
+            return;
+        }
+        res.status(200).send({
+            "status_code" : 200,
+            "response" : result
+        })
+    })
+})
+
+router.put('/',(req,res)=>{
+    const email = req.query.email;
+    const id = req.query.id;
+    const {AdminStatus} = req.body;
+
+     const sql = `UPDATE feedbacks SET f_status = "${AdminStatus}" WHERE usr_mail = "${email}" AND f_id="${id}"`
+
+    membersDb.query(sql,(err,result1)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send({
+                "status_code" : 500,
+                "response" : "Internal Server Error"
+            })
+            return;
+        }
+
+        res.status(200).send({
+            "status_code" : 200,
+            "response" : "Successfully updated facility status"
+        })
+       
+    })
+})
+router.get("/emailFeedbacks",(req,res)=>{
+    const sql = `SELECT * FROM feedbacks WHERE usr_mail = "${req.query.email}"`;
+    membersDb.query(sql,(err,result)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send({
+                "status_code" : 500,
+                "reponse" : "Internal server error"
+            });
             return;
         }
         res.status(200).send({

@@ -11,19 +11,23 @@ CREATE TABLE notice(
 CREATE TABLE feedbacks(
 	f_id INT PRIMARY KEY AUTO_INCREMENT,
 	feedback LONGTEXT,
+    usr_mail VARCHAR(25),
     date VARCHAR(10),
     time VARCHAR(25),
     filename VARCHAR(120),
-    image LONGBLOB
+    image LONGBLOB,
+    f_status VARCHAR(15) DEFAULT "UNAVAILABLE"
 );
 
 CREATE TABLE complaints(
 	c_id INT PRIMARY KEY AUTO_INCREMENT,
 	complaint LONGTEXT,
+    usr_mail VARCHAR(25),
     date VARCHAR(10),
     time VARCHAR(25),
     filename VARCHAR(120),
-    image LONGBLOB
+    image LONGBLOB,
+    c_status VARCHAR(15) DEFAULT "UNAVAILABLE"
 );
 
 CREATE TABLE marketplace(
@@ -41,6 +45,7 @@ CREATE TABLE facility(
     usr_mail VARCHAR(25),
     e_date DATE,
     e_time VARCHAR(15),
-    e_desc LONGTEXT
+    e_desc LONGTEXT,
+    f_status VARCHAR(15) DEFAULT "UNAVAILABLE"
 );
 

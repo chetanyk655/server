@@ -61,6 +61,7 @@ router.get("/singleFacility",(req,res)=>{
                 "status_code" : 500,
                 "reponse" : "Internal server error"
             });
+            return;
         }
         res.status(200).send({
             "status_code" : 200,
@@ -74,11 +75,12 @@ router.get("/",(req,res)=>{
     const sql = `SELECT * FROM facility`;
     membersDb.query(sql,(err,result)=>{
         if(err){
-            console.err(err);
+            console.log(err);
             res.status(500).send({
                 "status_code" : 500,
                 "reponse" : "Internal server error"
             });
+            return;
         }
         if(result.length == 0){
             res.status(404).send({

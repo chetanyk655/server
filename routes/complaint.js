@@ -18,11 +18,11 @@ router.post("/",upload.single('image'),(req,res)=>{
         }
     
         const { originalname, buffer } = req.file;
-        const { message,filename } = req.body;
+        const { message,filename,email } = req.body;
 
         // Insert image data into the database
-        const query = 'INSERT INTO complaints (complaint,date,time,filename, image) VALUES (?,?,?,?,?)';
-        membersDb.query(query, [message,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`,filename,buffer], (err, results) => {
+        const query = 'INSERT INTO complaints (complaint,date,time,filename, image,usr_mail) VALUES (?,?,?,?,?,?)';
+        membersDb.query(query, [message,`${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`,`${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`,filename,buffer,email], (err, results) => {
             if (err) {
                 console.error('Error inserting image into database:', err);
                 return res.status(500).send('Error saving the file to database.');
@@ -78,6 +78,23 @@ const getDates = ()=>{
         }
         return dates;
     }
+router.get("/emailComplaints",(req,res)=>{
+    const sql = `SELECT * FROM complaints WHERE usr_mail = "${req.query.email}"`;
+    membersDb.query(sql,(err,result)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send({
+                "status_code" : 500,
+                "reponse" : "Internal server error"
+            });
+            return;
+        }
+        res.status(200).send({
+            "status_code" : 200,
+            "response" : result
+        })
+    })
+})
 router.get("/",(req,res)=>{
     const dates = getDates();
     const sql = `SELECT * FROM complaints WHERE date IN ("${dates[0]}","${dates[1]}","${dates[2]}","${dates[3]}","${dates[4]}","${dates[5]}","${dates[6]}","${dates[7]}","${dates[8]}","${dates[9]}","${dates[10]}")`;
@@ -92,4 +109,30 @@ router.get("/",(req,res)=>{
         })
     })
 })
+
+router.put('/',(req,res)=>{
+    const email = req.query.email;
+    const id = req.query.id;
+    const {AdminStatus} = req.body;
+
+     const sql = `UPDATE complaints SET c_status = "${AdminStatus}" WHERE usr_mail = "${email}" AND c_id="${id}"`
+
+    membersDb.query(sql,(err,result1)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send({
+                "status_code" : 500,
+                "response" : "Internal Server Error"
+            })
+            return;
+        }
+
+        res.status(200).send({
+            "status_code" : 200,
+            "response" : "Successfully updated facility status"
+        })
+       
+    })
+})
+
 module.exports = router;
