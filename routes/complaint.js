@@ -35,7 +35,7 @@ router.post("/",upload.single('image'),(req,res)=>{
 })
 
 function getDaysInMonth(year, month) {
-    return new Date(year, month + 1, 0).getDate(); // Day 0 of the next month gives the last day of the current month
+    return new Date(year, month , 0).getDate(); // Day 0 of the next month gives the last day of the current month
 }
 const getDates = ()=>{
     const date = new Date();
@@ -69,7 +69,7 @@ const getDates = ()=>{
     
         for(let i = 0,j=1;i <= 10;i++){
             if(new Date(pastTenDaysDate).getDate()+i <= daysInMonth){
-                dates.push(`${pastTenDaysDate.slice(0,7)}${parseInt(pastTenDaysDate.slice(7))+i}`);
+                dates.push(`${pastTenDaysDate.slice(0,7)}-${parseInt(pastTenDaysDate.slice(7))+i}`);
             }
             else{
                 dates.push(`${pastTenDaysDate.slice(0,5)}${parseInt(pastTenDaysDate.slice(5,7))+1}-${j}`);

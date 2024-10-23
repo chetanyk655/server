@@ -5,6 +5,8 @@ CREATE TABLE notice(
 	date VARCHAR(10),
     time VARCHAR(25),
 	contents LONGTEXT,
+    filename LONGTEXT,
+    file LONGBLOB,
     PRIMARY KEY (date,time)
 );
 

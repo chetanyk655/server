@@ -1,12 +1,7 @@
 CREATE DATABASE member_features;
 USE member_features;
 
-CREATE TABLE notice(
-	date VARCHAR(10),
-    time VARCHAR(25),
-	contents LONGTEXT,
-    PRIMARY KEY (date,time)
-);
+
 
 CREATE TABLE feedbacks(
 	f_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -36,7 +31,8 @@ CREATE TABLE marketplace(
     price DOUBLE,
     descp LONGTEXT,
     filename LONGTEXT,
-    image LONGBLOB
+    image LONGBLOB,
+    ph_no LONG
 );
 
 CREATE TABLE facility(

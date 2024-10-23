@@ -17,11 +17,11 @@ router.post("/", upload.single('image'),(req, res) => {
         }
     
         const { originalname, buffer } = req.file;
-        const { p_name, price, descp,filename } = req.body;
+        const { p_name, price, descp,filename,ph } = req.body;
 
         // Insert image data into the database
-        const query = 'INSERT INTO marketplace (p_name, price, descp,filename, image) VALUES (?, ?, ?,?,?)';
-        membersDb.query(query, [p_name,price,descp,filename,buffer], (err, results) => {
+        const query = 'INSERT INTO marketplace (p_name, price, descp,filename, image,ph_no) VALUES (?, ?, ?,?,?,?)';
+        membersDb.query(query, [p_name,price,descp,filename,buffer,ph], (err, results) => {
             if (err) {
                 console.error('Error inserting image into database:', err);
                 return res.status(500).send('Error saving the file to database.');
@@ -32,6 +32,22 @@ router.post("/", upload.single('image'),(req, res) => {
         console.log(e);
     }
 
+})
+
+router.delete("/",(req,res)=>{
+    const {id} = req.body;
+    const sql = `DELETE FROM marketplace WHERE prod_id = ?`;
+
+    membersDb.query(sql,[id],(err,result)=>{
+        if(err){
+            console.log("Error Deleting Product from database",err);
+            return res.status(500).send("Error Deleting Product(500)")
+        }
+        res.status(200).send({
+            "status_code" : 200,
+            "response" : "successfully deleted product"
+        })
+    })
 })
 
 router.get("/", (req, res) => {

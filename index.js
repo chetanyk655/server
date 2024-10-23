@@ -12,6 +12,7 @@ const contactRoute = require("./routes/contact.js")
 const membersRoute = require("./routes/members.js")
 const securityRoute = require("./routes/security.js")
 const adminAuthRoute = require("./routes/admin_auth.js")
+const noticeRoute = require("./routes/notice.js")
 const cors =require('cors')
 
 const  {accountsDb,adminsDb, membersDb} = require('./config/db.js')
@@ -34,6 +35,7 @@ app.use('/api/contact',contactRoute)
 app.use('/api/members',membersRoute)
 app.use('/api/security',securityRoute)
 app.use('/api/admin_auth',adminAuthRoute)
+app.use('/api/notice',noticeRoute)
 app.use(cors())
 let details = {};
 const PORT = process.env.PORT || 2000;
@@ -117,7 +119,6 @@ app.post("/api/checklogin",(req,res) =>{
 
 // Register route
 app.post('/api/registration',  (req, res) => {
-    console.log(req.body)
   const { name, password,email ,isAdmin,house_no,ph_no} = req.body;
     let tableSelected;
   // Check if user already exists
@@ -151,7 +152,7 @@ app.post('/api/registration',  (req, res) => {
             return res.status(500).send('Error saving admin');
         }
         res.status(200).send('Admin registered successfully');
-        console.log("Done",result);
+        console.log("Done");
         });
     }else{
         const query = `INSERT INTO ${table} (name,house_no, password,email,ph_no) VALUES (?,?,?,?,?)`;
@@ -161,112 +162,14 @@ app.post('/api/registration',  (req, res) => {
             return res.status(500).send('Error saving user');
         }
         res.status(200).send('User registered successfully');
-        console.log("Done",result);
+        console.log("Done");
         });
     }
     
   });
 });
 
-//api for admin to put notice 
-app.post("/api/store-notice",(req,res)=>{
-    const content = req.body.contents;
-    const date = new Date();
-    const sql = `INSERT INTO notice (contents,date,time) VALUES(?,?,?)`;
-    try{
-        adminsDb.query(sql,[content,`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`],(err,result)=>{
-            if(err){
-                return res.status(500).send({
-                    "status_code" : 500,
-                    "response" : "Error Saving  Notice"
-                });
-            }
 
-            res.status(200).send({
-                "status_code" : 200,
-                "response" : "Success"
-            })
-
-        })
-    }catch(e){
-        console.log(e);
-    }
-})
-
-
-function getDaysInMonth(year, month) {
-    return new Date(year, month + 1, 0).getDate(); // Day 0 of the next month gives the last day of the current month
-}
-const getDates = ()=>{
-    const date = new Date();
-        let daysInMonth = null; 
-    
-        if(date.getMonth() == 2 && date.getDate() <= 10){
-            if(date.getFullYear()%4==0){
-                daysInMonth = 29
-            }
-            else{
-                daysInMonth = 28
-            }
-        }
-        else{
-        daysInMonth = getDaysInMonth(date.getFullYear(), date.getMonth()-1);
-        }
-    
-        let pastTenDaysDate = "";
-        if(date.getDate() <= 10){
-            switch(daysInMonth){
-                case 31 : pastTenDaysDate = `${date.getFullYear()}-${date.getMonth()}-${31+(date.getDate()-10)}`;break;
-                case 30 : pastTenDaysDate = `${date.getFullYear()}-${date.getMonth()}-${30+(date.getDate()-10)}`;break;
-                case 29 : pastTenDaysDate = `${date.getFullYear()}-${date.getMonth()}-${29+(date.getDate()-10)}`;break;
-                case 28 : pastTenDaysDate = `${date.getFullYear()}-${date.getMonth()}-${28+(date.getDate()-10)}`;break;
-            }
-        }else{
-            pastTenDaysDate = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()-10}`;
-        }
-    
-        let dates =[];
-    
-        for(let i = 0,j=1;i <= 10;i++){
-            if(new Date(pastTenDaysDate).getDate()+i <= daysInMonth){
-                dates.push(`${pastTenDaysDate.slice(0,7)}${parseInt(pastTenDaysDate.slice(7))+i}`);
-            }
-            else{
-                dates.push(`${pastTenDaysDate.slice(0,5)}${parseInt(pastTenDaysDate.slice(5,7))+1}-${j}`);
-                j++;
-            }
-        }
-        return dates;
-    }
-
-
-//api for member to see notices
-app.get("/api/get-notice",(req,res)=>{
-    const datesList = getDates();
-    const sql = `SELECT * FROM notice WHERE date IN ("${datesList[0]}","${datesList[1]}","${datesList[2]}","${datesList[3]}","${datesList[4]}","${datesList[5]}","${datesList[6]}","${datesList[7]}","${datesList[8]}","${datesList[9]}","${datesList[10]}")`
-    adminsDb.query(sql,(err,result)=>{
-        if(err){
-            console.log(err);
-            res.status(500).send({
-                "status_code" : 500,
-                "response" : "Error Fetching Notice"
-            })
-        }
-        if(result.length == 0){
-            res.status(404).send({
-                "status_code" : 404,
-                "respone" : "No notice found"
-            })
-            return;
-        }
-
-        res.status(200).send({
-            "status_code" : 200,
-            "response" : result
-        })
-
-    })
-})
 
 
 /*
