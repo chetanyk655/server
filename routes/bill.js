@@ -92,10 +92,10 @@ router.delete("/",(req,res)=>{
 
 router.get("/",(req,res)=>{
     const email = req.query.email;
-
-    const sql = `SELECT * FROM bills WHERE m_email = ?`;
+    console.log(email)
+    const sql = `SELECT * FROM bills WHERE m_email = "${email}"`;
     
-    adminsDb.query(sql,[email],(err,result)=>{
+    adminsDb.query(sql,(err,result)=>{
         console.log(result)
         if(err){
             console.log(err);
@@ -111,7 +111,7 @@ router.get("/",(req,res)=>{
         }
         res.status(200).send({
             "status_code" : 200,
-            "response" : result
+            "response" : result[result.length-1]
         })
     })
 })
@@ -120,7 +120,6 @@ router.get("/allbills",(req,res)=>{
 
 
     const sql = `SELECT * FROM maintenance `;
-    console.log("helklo")
     adminsDb.query(sql,(err,result)=>{
         console.log(result)
         if(err){
